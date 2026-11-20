@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CONDOMINAR | Software de administración de condominios en Ecuador</title>
+<link rel="icon" type="image/png" href="logo-condominar-blanco.png">
+<meta name="description" content="Cobra alícuotas, verifica comprobantes con IA y concilia con el banco en un solo lugar. Software de administración de condominios hecho en Quito. Planes desde US$35 al mes.">
+<style>
+@font-face{font-family:Ubuntu;font-weight:400;font-display:swap;src:url(ubuntu-400.woff2) format("woff2")}
+@font-face{font-family:Ubuntu;font-weight:500;font-display:swap;src:url(ubuntu-500.woff2) format("woff2")}
+@font-face{font-family:Ubuntu;font-weight:700;font-display:swap;src:url(ubuntu-700.woff2) format("woff2")}
+@font-face{font-family:Inter;font-weight:100 900;font-display:swap;src:url(inter.woff2) format("woff2")}
+:root{
+  --noche:#021C4D;--noche-2:#01143A;--prof:#052968;--marino:#133E6B;
+  --teal:#0C9B9B;--teal-d:#087C7C;--cian:#2EE6F0;--hielo:#EEF6F8;--blanco:#fff;
+  --tinta:#0B1B3A;--gris:#5A6A85;--linea:rgba(2,28,77,.10);
+  --r:22px;--max:1200px;
+  --sombra:0 24px 60px -20px rgba(2,28,77,.25);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:Inter,system-ui,sans-serif;color:var(--tinta);background:#fff;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,h4{font-family:Ubuntu,Inter,sans-serif;font-weight:700;letter-spacing:-.02em;line-height:1.06}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 28px}
+.t{color:var(--teal)}.c{color:var(--cian)}
+.grad{background:linear-gradient(90deg,var(--cian),#5FD3DA 40%,var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent}
+.kicker{display:inline-flex;align-items:center;gap:10px;font-family:Ubuntu;font-weight:500;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--teal)}
+.kicker:before{content:"";width:28px;height:2px;background:currentColor;border-radius:2px}
+.dark .kicker{color:var(--cian)}
+.btn{display:inline-flex;align-items:center;gap:10px;font-family:Ubuntu;font-weight:500;font-size:16px;padding:15px 26px;border-radius:999px;transition:.25s transform,.25s box-shadow,.25s background;cursor:pointer;border:0;white-space:nowrap}
+.btn svg{width:18px;height:18px;transition:.25s transform}
+.btn:hover svg{transform:translateX(3px)}
+.btn-p{background:var(--teal);color:#fff;box-shadow:0 10px 30px -8px rgba(12,155,155,.7)}
+.btn-p:hover{background:#0FB0B0;transform:translateY(-2px)}
+.btn-g{color:#fff;border:1.5px solid rgba(255,255,255,.28);background:rgba(255,255,255,.04)}
+.btn-g:hover{background:rgba(255,255,255,.1)}
+.btn-d{background:var(--noche);color:#fff}
+.btn-d:hover{background:var(--prof);transform:translateY(-2px)}
+.sec{padding:120px 0}
+.sec-h{max-width:760px;margin-bottom:56px}
+.sec-h h2{font-size:clamp(34px,4.6vw,58px);margin:18px 0 18px}
+.sec-h p{font-size:19px;color:var(--gris)}
+.center{text-align:center;margin-left:auto;margin-right:auto}
+.dark{background:var(--noche);color:#fff}
+.dark .sec-h p{color:rgba(255,255,255,.72)}
+.gridbg{position:absolute;inset:0;background-image:linear-gradient(rgba(46,230,240,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(46,230,240,.06) 1px,transparent 1px);background-size:56px 56px;-webkit-mask-image:radial-gradient(900px 600px at 70% 35%,#000,transparent 75%);mask-image:radial-gradient(900px 600px at 70% 35%,#000,transparent 75%);pointer-events:none}
+
+/* NAV */
+.nav{position:fixed;top:14px;left:0;right:0;z-index:50;transition:.3s}
+.nav .bar{max-width:var(--max);margin:0 auto;width:calc(100% - 32px);display:flex;align-items:center;justify-content:space-between;gap:20px;padding:10px 12px 10px 22px;border-radius:999px;background:rgba(2,28,77,.55);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.nav.solid .bar{background:rgba(2,28,77,.92);box-shadow:0 14px 40px -12px rgba(2,28,77,.5)}
+.nav .logo img{height:40px}
+.nav ul{display:flex;gap:30px;list-style:none;font-size:15px;color:rgba(255,255,255,.82)}
+.nav ul a:hover{color:var(--cian)}
+.nav .btn{padding:11px 20px;font-size:15px}
+.burger{display:none;background:none;border:0;width:42px;height:42px;border-radius:50%;color:#fff}
+.burger svg{width:24px;height:24px}
+
+/* HERO */
+.hero{position:relative;overflow:hidden;background:radial-gradient(1000px 700px at 78% 20%,#0B3B86 0%,rgba(5,41,104,0) 60%),radial-gradient(700px 500px at 0% 100%,rgba(12,155,155,.25),transparent 70%),linear-gradient(180deg,var(--prof) 0%,var(--noche) 55%,var(--noche-2) 100%);color:#fff;padding:170px 0 110px}
+.hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;position:relative;z-index:2}
+.hero h1{font-size:clamp(40px,5.2vw,70px);margin:22px 0 24px}
+.hero .lead{font-size:20px;color:rgba(255,255,255,.8);max-width:560px}
+.hero .ctas{display:flex;gap:14px;flex-wrap:wrap;margin:36px 0 26px}
+.hero .meta{display:flex;gap:22px;flex-wrap:wrap;font-size:14px;color:rgba(255,255,255,.65)}
+.hero .meta span{display:flex;align-items:center;gap:8px}
+.hero .meta span:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--cian);box-shadow:0 0 10px var(--cian)}
+.stage{position:relative;height:600px}
+.stage .halo{position:absolute;left:50%;top:48%;width:620px;height:620px;transform:translate(-50%,-50%);background:url(halo.png) center/contain no-repeat;opacity:.95}
+.stage .ring{position:absolute;left:50%;top:48%;border-radius:50%;border:1px solid rgba(46,230,240,.18);transform:translate(-50%,-50%)}
+.stage .robot{position:absolute;left:50%;top:50%;width:330px;transform:translate(-50%,-50%);animation:float 6s ease-in-out infinite;filter:drop-shadow(0 30px 40px rgba(0,0,0,.35))}
+@keyframes float{0%,100%{transform:translate(-50%,-52%)}50%{transform:translate(-50%,-47%)}}
+.fc{position:absolute;background:rgba(9,35,86,.72);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:18px;padding:14px 16px;box-shadow:0 20px 50px -15px rgba(0,0,0,.6);font-size:13px;color:rgba(255,255,255,.75);animation:pop .8s cubic-bezier(.2,.8,.2,1) both}
+.fc b{display:block;color:#fff;font-family:Ubuntu;font-weight:500;font-size:15px}
+.fc .row{display:flex;align-items:center;gap:12px}
+.ic{flex:0 0 38px;height:38px;border-radius:12px;display:grid;place-items:center;background:rgba(46,230,240,.12);color:var(--cian)}
+.ic svg{width:20px;height:20px}
+.ic.ok{background:var(--teal);color:#fff}
+@keyframes pop{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:none}}
+.fc1{top:40px;left:-10px;animation-delay:.3s}
+.fc2{top:150px;right:-20px;animation-delay:.55s;width:230px}
+.fc3{bottom:70px;left:0;animation-delay:.8s;width:250px}
+.fc4{bottom:20px;right:10px;animation-delay:1.05s}
+.bar2{height:6px;border-radius:6px;background:rgba(255,255,255,.12);overflow:hidden;margin-top:10px}
+.bar2 i{display:block;height:100%;width:94%;background:linear-gradient(90deg,var(--teal),var(--cian));border-radius:6px}
+.donut{width:58px;height:58px;border-radius:50%;background:conic-gradient(var(--cian) 0 88%,rgba(255,255,255,.12) 0);display:grid;place-items:center}
+.donut span{width:44px;height:44px;border-radius:50%;background:#0A2A62;display:grid;place-items:center;font-family:Ubuntu;font-weight:700;font-size:14px;color:#fff}
+.chip-demo{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.45);position:absolute;bottom:-26px;left:50%;transform:translateX(-50%);white-space:nowrap}
+
+/* TRUST STRIP */
+.strip{background:var(--noche-2);color:#fff;border-top:1px solid rgba(255,255,255,.06)}
+.strip .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+.strip .it{padding:30px 26px;display:flex;gap:14px;align-items:center;border-left:1px solid rgba(255,255,255,.08);font-size:15px;color:rgba(255,255,255,.78)}
+.strip .it:first-child{border-left:0}
+.strip .it b{display:block;color:#fff;font-family:Ubuntu;font-weight:500;font-size:16px}
+
+/* PROBLEMA */
+.pain{display:grid;grid-template-columns:1fr 1fr;gap:70px;align-items:center}
+.photo{position:relative;border-radius:28px;overflow:hidden;box-shadow:var(--sombra)}
+.photo img{width:100%;height:100%;object-fit:cover}
+.photo .tag{position:absolute;left:18px;bottom:18px;right:18px;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-radius:16px;padding:14px 16px;display:flex;gap:12px;align-items:center;font-size:14px;color:var(--gris)}
+.photo .tag b{color:var(--tinta);display:block;font-family:Ubuntu;font-weight:500;font-size:15px}
+.tag .ic{background:#FDECEC;color:#D64545}
+.list{list-style:none;display:grid;gap:14px;margin-top:30px}
+.list li{display:flex;gap:14px;align-items:flex-start;font-size:17px}
+.list li:before{content:"";flex:0 0 26px;height:26px;border-radius:50%;margin-top:1px;background:#FDECEC url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 7l10 10M17 7L7 17' stroke='%23D64545' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E") center/14px no-repeat}
+.list.ok li:before{background:var(--teal) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 12.5l4 4 8-9' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/15px no-repeat}
+.dark .list.ok li{color:rgba(255,255,255,.85)}
+
+/* MOTOR FINANCIERO */
+.motor{position:relative;overflow:hidden;background:radial-gradient(900px 600px at 50% 0%,#0B3B86 0%,rgba(5,41,104,0) 65%),var(--noche)}
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;position:relative;margin-bottom:70px}
+.flow:before{content:"";position:absolute;left:8%;right:8%;top:34px;height:2px;background:linear-gradient(90deg,rgba(46,230,240,0),rgba(46,230,240,.5),rgba(46,230,240,0))}
+.step{position:relative;text-align:center;padding:0 6px}
+.step .ic{width:68px;height:68px;flex:none;border-radius:22px;margin:0 auto 18px;background:linear-gradient(160deg,#0D3B80,#072A63);border:1px solid rgba(46,230,240,.35);box-shadow:0 0 0 8px rgba(2,28,77,1),0 0 30px -4px rgba(46,230,240,.45)}
+.step .ic svg{width:28px;height:28px}
+.step.man .ic{border-color:rgba(255,190,120,.6);color:#FFC48A;box-shadow:0 0 0 8px rgba(2,28,77,1),0 0 30px -4px rgba(255,170,90,.4)}
+.step h4{font-size:17px;margin-bottom:6px}
+.step p{font-size:14px;color:rgba(255,255,255,.62)}
+.step small{display:inline-block;margin-bottom:8px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:99px;background:rgba(46,230,240,.1);color:var(--cian)}
+.step.man small{background:rgba(255,170,90,.12);color:#FFC48A}
+
+/* DASHBOARD MOCK */
+.dash{position:relative;border-radius:22px;background:#fff;color:var(--tinta);box-shadow:0 50px 120px -30px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.08);overflow:hidden;display:grid;grid-template-columns:210px 1fr;font-size:13px;max-width:1060px;margin:0 auto}
+.dash .side{background:var(--noche);padding:22px 16px;color:rgba(255,255,255,.65)}
+.dash .side img{height:34px;margin:0 0 26px 6px}
+.dash .side a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;margin-bottom:3px}
+.dash .side a.on{background:rgba(46,230,240,.12);color:#fff}
+.dash .side a i{width:7px;height:7px;border-radius:2px;background:currentColor;opacity:.6}
+.dash .side a.on i{background:var(--cian);opacity:1}
+.dash .main{padding:24px 26px;background:#F6F9FB}
+.dash .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.dash .top h5{font-family:Ubuntu;font-size:20px;font-weight:700}
+.dash .top span{color:var(--gris);font-size:12px}
+.dash .top .pill,.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:7px 12px;border-radius:99px;background:var(--teal);color:#fff}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+.kpi{background:#fff;border:1px solid var(--linea);border-radius:14px;padding:14px}
+.kpi span{color:var(--gris);font-size:12px}
+.kpi b{display:block;font-family:Ubuntu;font-size:22px;margin:4px 0 2px}
+.kpi em{font-style:normal;font-size:11.5px;color:var(--teal);font-weight:600}
+.kpi em.r{color:#D64545}
+.panes{display:grid;grid-template-columns:1.35fr 1fr;gap:12px}
+.pane{background:#fff;border:1px solid var(--linea);border-radius:14px;padding:16px}
+.pane h6{font-family:Ubuntu;font-size:14px;font-weight:500;margin-bottom:12px;display:flex;justify-content:space-between}
+.pane h6 span{font-family:Inter;color:var(--gris);font-weight:400;font-size:12px}
+.chart{display:flex;align-items:flex-end;gap:8px;height:130px;padding-top:6px}
+.chart i{flex:1;border-radius:6px 6px 2px 2px;background:#D6EEF0}
+.chart i.h{background:linear-gradient(180deg,var(--cian),var(--teal))}
+.tx{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--linea)}
+.tx:first-of-type{border-top:0}
+.tx .av{width:30px;height:30px;border-radius:9px;background:var(--hielo);display:grid;place-items:center;font-weight:700;font-size:11px;color:var(--marino)}
+.tx div{flex:1;line-height:1.3}
+.tx div small{display:block;color:var(--gris);font-size:11px}
+.st{font-size:11px;font-weight:600;padding:4px 9px;border-radius:99px}
+.st.ok{background:#E3F6F4;color:var(--teal-d)}
+.st.wait{background:#FFF3E3;color:#B86A12}
+.dash-note{text-align:center;font-size:13px;color:rgba(255,255,255,.5);margin-top:22px}
+
+/* PERFILES */
+.profiles{display:flex;gap:14px;height:520px}
+.pf{position:relative;flex:1;border-radius:26px;overflow:hidden;cursor:pointer;transition:flex .6s cubic-bezier(.2,.8,.2,1);background:var(--noche);min-width:0}
+.pf.on{flex:3.2}
+.pf img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 25%;transition:.6s transform}
+.pf:hover img{transform:scale(1.04)}
+.pf:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,28,77,0) 30%,rgba(2,28,77,.92) 100%)}
+.pf .v{position:absolute;bottom:26px;left:22px;z-index:2;color:#fff;font-family:Ubuntu;font-weight:700;font-size:22px;writing-mode:vertical-rl;transform:rotate(180deg);transition:.3s opacity}
+.pf .n{position:absolute;top:18px;left:18px;z-index:2;font-size:12px;font-weight:600;color:#fff;background:rgba(255,255,255,.16);backdrop-filter:blur(6px);padding:5px 11px;border-radius:99px}
+.pf .body{position:absolute;left:30px;right:30px;bottom:28px;z-index:2;color:#fff;opacity:0;transform:translateY(14px);transition:.4s;pointer-events:none}
+.pf.on .body{opacity:1;transform:none;transition-delay:.25s}
+.pf.on .v{opacity:0}
+.pf .body h3{font-size:32px;margin-bottom:10px}
+.pf .body p{color:rgba(255,255,255,.82);max-width:470px;font-size:16px}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.tags span{font-size:12.5px;padding:6px 12px;border-radius:99px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2)}
+.pf.res{background:radial-gradient(400px 400px at 50% 40%,#0B3B86,var(--noche))}
+.pf.res img.rb{position:absolute;inset:auto;left:50%;top:40%;width:210px;height:auto;object-fit:contain;transform:translate(-50%,-50%);filter:drop-shadow(0 20px 30px rgba(0,0,0,.4))}
+.pf.res:after{background:linear-gradient(180deg,rgba(2,28,77,0) 45%,rgba(2,28,77,.95) 100%)}
+
+/* FUNCIONES BENTO */
+.bento{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
+.card{background:#fff;border:1px solid var(--linea);border-radius:var(--r);padding:30px;transition:.3s;position:relative;overflow:hidden}
+.card:hover{transform:translateY(-4px);box-shadow:var(--sombra)}
+.card .ic{background:var(--hielo);color:var(--teal);width:48px;height:48px;flex:none;border-radius:14px;margin-bottom:22px}
+.card .ic svg{width:24px;height:24px}
+.card h3{font-size:22px;margin-bottom:10px}
+.card p{color:var(--gris);font-size:15.5px}
+.b2{grid-column:span 2}.b3{grid-column:span 3}.b4{grid-column:span 4}
+.card.feat{background:linear-gradient(150deg,var(--prof),var(--noche));color:#fff;border:0}
+.card.feat p{color:rgba(255,255,255,.75)}
+.card.feat .ic{background:rgba(46,230,240,.14);color:var(--cian)}
+.card.photo-c{padding:0;display:grid;grid-template-columns:1fr 1fr}
+.card.photo-c .txt{padding:30px}
+.card.photo-c img{width:100%;height:100%;object-fit:cover;min-height:280px}
+.aibox{position:relative;min-height:280px;background:radial-gradient(260px 260px at 50% 50%,#0B3B86,var(--noche));overflow:hidden}
+.aibox .halo{position:absolute;left:50%;top:50%;width:380px;height:380px;transform:translate(-50%,-50%);background:url(halo.png) center/contain no-repeat}
+.card.photo-c .aibox img{position:absolute;min-height:0;height:auto;object-fit:contain;left:50%;top:50%;width:170px;transform:translate(-50%,-50%);animation:float 6s ease-in-out infinite}
+.mini{margin-top:22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:14px 16px;font-size:13.5px}
+.mini .tx{border-color:rgba(255,255,255,.1)}
+.mini .tx .av{background:rgba(46,230,240,.14);color:var(--cian)}
+.mini .tx div small{color:rgba(255,255,255,.55)}
+.match{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--cian);margin-top:8px}
+.badge-soon{position:absolute;top:22px;right:22px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--teal);background:var(--hielo);padding:5px 10px;border-radius:99px}
+
+/* DECRETO 462 */
+.decreto{position:relative;overflow:hidden;background:linear-gradient(120deg,var(--teal-d) 0%,var(--teal) 45%,#13B3B3 100%);color:#fff;border-radius:34px;display:grid;grid-template-columns:1.1fr .9fr;margin:0 auto}
+.decreto .txt{padding:64px 56px;position:relative;z-index:2}
+.decreto h2{font-size:clamp(32px,4vw,50px);margin:16px 0 18px}
+.decreto .kicker{color:#fff}
+.decreto p{font-size:18px;color:rgba(255,255,255,.9);max-width:520px}
+.decreto .list.ok li{color:#fff}
+.decreto .list.ok li:before{background-color:var(--noche)}
+.decreto .img{position:relative}
+.decreto .img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:60% 50%}
+.decreto .img:before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,#0FA6A6 0%,rgba(15,166,166,0) 40%)}
+.decreto .stamp{position:absolute;z-index:2;right:28px;bottom:28px;background:#fff;color:var(--noche);border-radius:18px;padding:16px 18px;box-shadow:0 20px 40px -10px rgba(0,0,0,.35);font-size:13px;color:var(--gris);max-width:290px}
+.decreto .stamp b{display:block;font-family:Ubuntu;font-size:17px;color:var(--noche)}
+.decreto .btn-d{margin-top:34px}
+
+/* PRECIOS */
+.prices{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:stretch}
+.plan{background:#fff;border:1px solid var(--linea);border-radius:26px;padding:34px 30px;display:flex;flex-direction:column}
+.plan h3{font-size:19px;font-weight:500;color:var(--gris)}
+.plan .p{font-family:Ubuntu;font-weight:700;font-size:58px;letter-spacing:-.03em;margin:14px 0 4px;color:var(--noche)}
+.plan .p small{font-size:17px;font-weight:400;color:var(--gris);letter-spacing:0}
+.plan .p.alt{font-size:36px;line-height:1.25;margin:22px 0 12px}
+.plan .sub{font-size:14px;color:var(--gris);margin-bottom:26px}
+.plan .btn{justify-content:center;margin-top:auto}
+.plan.hl{background:linear-gradient(160deg,var(--prof),var(--noche));color:#fff;border:0;position:relative;box-shadow:0 30px 70px -25px rgba(2,28,77,.7)}
+.plan.hl h3,.plan.hl .sub,.plan.hl .p small{color:rgba(255,255,255,.7)}
+.plan.hl .p{color:#fff}
+.plan.hl .pop{position:absolute;top:22px;right:22px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;background:var(--cian);color:var(--noche);padding:5px 11px;border-radius:99px}
+.incl{margin-top:22px;background:var(--hielo);border-radius:26px;padding:34px;display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.incl h4{font-size:18px;margin-bottom:16px}
+.incl .list{margin-top:0;gap:10px}
+.incl .list li{font-size:15.5px}
+.mod{display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-top:1px solid var(--linea);font-size:15px}
+.mod:first-of-type{border-top:0;padding-top:0}
+.mod span{color:var(--gris);font-size:13.5px;display:block}
+.no{color:var(--gris);font-size:13.5px;margin-top:14px}
+
+/* FAQ */
+.faq{max-width:860px;margin:0 auto}
+details{border-bottom:1px solid var(--linea);padding:6px 0}
+summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:20px;padding:20px 4px;font-family:Ubuntu;font-weight:500;font-size:19px}
+summary::-webkit-details-marker{display:none}
+summary i{flex:0 0 34px;height:34px;border-radius:50%;background:var(--hielo);position:relative;transition:.3s}
+summary i:before,summary i:after{content:"";position:absolute;left:50%;top:50%;width:12px;height:2px;background:var(--teal);transform:translate(-50%,-50%);border-radius:2px;transition:.3s}
+summary i:after{transform:translate(-50%,-50%) rotate(90deg)}
+details[open] summary i{background:var(--teal)}
+details[open] summary i:before,details[open] summary i:after{background:#fff}
+details[open] summary i:after{transform:translate(-50%,-50%) rotate(0)}
+details p{padding:0 60px 22px 4px;color:var(--gris);font-size:16px}
+
+/* CTA FINAL */
+.final{position:relative;overflow:hidden;border-radius:34px;background:radial-gradient(700px 500px at 80% 50%,#0B3B86,rgba(5,41,104,0) 70%),linear-gradient(160deg,var(--prof),var(--noche-2));color:#fff;padding:70px 60px;display:grid;grid-template-columns:1.3fr .7fr;align-items:center;gap:30px}
+.final h2{font-size:clamp(34px,4.4vw,56px);margin:16px 0 18px}
+.final p{font-size:18px;color:rgba(255,255,255,.75);max-width:520px}
+.final .ctas{display:flex;gap:14px;flex-wrap:wrap;margin-top:32px}
+.final .rbx{position:relative;height:340px}
+.final .rbx .halo{position:absolute;inset:-60px;background:url(halo.png) center/contain no-repeat}
+.final .rbx img{position:absolute;left:50%;top:50%;width:240px;transform:translate(-50%,-50%);animation:float 6s ease-in-out infinite}
+
+/* FOOTER */
+footer{background:var(--noche-2);color:rgba(255,255,255,.65);padding:70px 0 34px;margin-top:120px;font-size:15px}
+footer .cols{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px}
+footer img{height:54px;margin-bottom:18px}
+footer h5{font-family:Ubuntu;font-weight:500;color:#fff;font-size:15px;margin-bottom:16px}
+footer ul{list-style:none;display:grid;gap:10px}
+footer a:hover{color:var(--cian)}
+footer .bottom{border-top:1px solid rgba(255,255,255,.08);margin-top:50px;padding-top:24px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;font-size:13px;color:rgba(255,255,255,.45)}
+
+/* REVEAL */
+.rv{opacity:0;transform:translateY(26px);transition:.8s cubic-bezier(.2,.8,.2,1)}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
+
+/* RESPONSIVE */
+@media (max-width:1020px){
+  .nav ul{display:none}
+  .hero .wrap,.pain,.final,.decreto{grid-template-columns:1fr}
+  .stage{height:520px;max-width:520px;margin:0 auto;width:100%}
+  .flow{grid-template-columns:1fr 1fr;row-gap:36px}
+  .flow:before{display:none}
+  .strip .wrap{grid-template-columns:1fr 1fr}
+  .strip .it:nth-child(3){border-left:0}
+  .dash{grid-template-columns:1fr}.dash .side{display:none}
+  .profiles{flex-direction:column;height:auto}
+  .pf,.pf.on{flex:none;height:420px}
+  .pf .body{opacity:1;transform:none}.pf .v{display:none}
+  .bento{grid-template-columns:1fr 1fr}
+  .b2,.b3,.b4{grid-column:span 1}
+  .card.photo-c{grid-column:span 2}
+  .prices{grid-template-columns:1fr}
+  .incl{grid-template-columns:1fr}
+  .decreto .img{min-height:300px}
+  footer .cols{grid-template-columns:1fr 1fr}
+}
+@media (max-width:640px){
+  .wrap{padding:0 16px}
+  .sec{padding:80px 0}
+  .nav{top:10px}.nav .bar{width:calc(100% - 20px);padding:8px 8px 8px 16px}
+  .nav .logo img{height:34px}
+  .nav .btn{padding:10px 14px;font-size:13.5px}
+  .hero{padding:130px 0 70px}
+  .hero .lead{font-size:17px}
+  .hero .ctas .btn{flex:1;justify-content:center}
+  .stage{height:460px}
+  .stage .robot{width:230px}
+  .stage .halo{width:440px;height:440px}
+  .fc{font-size:12px;padding:11px 12px}.fc b{font-size:13.5px}
+  .fc1{left:0;top:10px}.fc2{right:0;top:120px;width:190px}.fc3{left:0;width:200px;bottom:60px}.fc4{right:0;bottom:0}
+  .strip .wrap{grid-template-columns:1fr}
+  .strip .it{border-left:0;border-top:1px solid rgba(255,255,255,.08);padding:20px 4px}
+  .strip .it:first-child{border-top:0}
+  .flow{grid-template-columns:1fr}
+  .kpis{grid-template-columns:1fr 1fr}
+  .panes{grid-template-columns:1fr}
+  .dash .main{padding:16px}
+  .bento{grid-template-columns:1fr}
+  .card.photo-c{grid-column:span 1;grid-template-columns:1fr}
+  .card.photo-c img{min-height:220px;max-height:260px}
+  .decreto{border-radius:26px}.decreto .txt{padding:40px 24px}
+  .final{padding:44px 24px;border-radius:26px}
+  .final .rbx{height:260px}
+  details p{padding-right:8px}
+  summary{font-size:17px}
+  footer .cols{grid-template-columns:1fr}
+  .plan .p{font-size:50px}
+  .fc2{display:none}
+  .pf.res img.rb{top:26%;width:140px}
+  .decreto .btn{white-space:normal;text-align:left}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<header class="nav" id="nav">
+  <div class="bar">
+    <a href="#top" class="logo" aria-label="CONDOMINAR"><img src="logo-condominar-blanco.png" alt="CONDOMINAR"></a>
+    <ul>
+      <li><a href="#motor">Cómo funciona</a></li>
+      <li><a href="#perfiles">Para quién</a></li>
+      <li><a href="#funciones">Funciones</a></li>
+      <li><a href="#decreto">Decreto 462</a></li>
+      <li><a href="#precios">Precios</a></li>
+      <li><a href="#faq">Preguntas</a></li>
+    </ul>
+    <a href="#agendar" class="btn btn-p">Agendar demostración</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="gridbg"></div>
+  <div class="wrap">
+    <div>
+      <span class="kicker">Software de administración de condominios · Ecuador</span>
+      <h1>Tu conjunto al día, <span class="grad">sin perseguir pagos.</span></h1>
+      <p class="lead">Cobra alícuotas, verifica comprobantes con inteligencia artificial y concilia con el banco en un solo lugar. Los residentes pagan y consultan su saldo sin descargar ninguna app.</p>
+      <div class="ctas">
+        <a href="#agendar" class="btn btn-p">Agendar demostración <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <a href="#motor" class="btn btn-g">Ver cómo funciona</a>
+      </div>
+      <div class="meta"><span>Planes desde US$35 al mes</span><span>2 meses sin costo para empezar</span><span>Hecho en Quito</span></div>
+    </div>
+
+    <div class="stage" aria-hidden="true">
+      <div class="ring" style="width:470px;height:470px"></div>
+      <div class="ring" style="width:600px;height:600px;border-style:dashed;opacity:.6"></div>
+      <div class="halo"></div>
+      <img class="robot" src="mascota-condominar.png" alt="">
+      <div class="fc fc1"><div class="row"><div class="ic ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><div><b>Comprobante verificado</b>Casa 14 · US$58 · Banco Pichincha</div></div></div>
+      <div class="fc fc2"><b>Conciliación bancaria</b>38 de 40 movimientos conciliados<div class="bar2"><i></i></div></div>
+      <div class="fc fc3"><div class="row"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg></div><div><b>Recibo enviado</b>Pago aplicado a la deuda más antigua</div></div></div>
+      <div class="fc fc4"><div class="row"><div class="donut"><span>88%</span></div><div><b>Al día</b>este mes</div></div></div>
+      <span class="chip-demo">Datos de un conjunto de demostración</span>
+    </div>
+  </div>
+</section>
+
+<!-- STRIP -->
+<section class="strip">
+  <div class="wrap">
+    <div class="it"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M4 4l16 16"/></svg></div><div><b>Sin apps para residentes</b>Pagan y consultan sin instalar nada</div></div>
+    <div class="it"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.2 4.6L19 8.3l-3.5 3.4.8 4.9L12 14.3l-4.3 2.3.8-4.9L5 8.3l4.8-.7z"/></svg></div><div><b>IA en cada comprobante</b>Lee, valida y propone el registro</div></div>
+    <div class="it"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18M12 3l9 5H3z"/></svg></div><div><b>Conciliación bancaria</b>Cada pago cuadra con tu banco</div></div>
+    <div class="it"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg></div><div><b>Listo para el Decreto 462</b>Mora, estado de pagos y reportes</div></div>
+  </div>
+</section>
+
+<!-- PROBLEMA -->
+<section class="sec">
+  <div class="wrap pain">
+    <div class="photo rv" style="aspect-ratio:1/0.9">
+      <img src="foto-problema.jpg" alt="Manos revisando comprobantes y cuentas con calculadora">
+      <div class="tag"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div><b>Domingo, 22:40</b>Todavía cuadrando transferencias del mes</div></div>
+    </div>
+    <div class="rv">
+      <span class="kicker">El problema</span>
+      <h2 style="font-size:clamp(32px,4.2vw,52px);margin:18px 0">Administrar a mano cuesta más de lo que parece.</h2>
+      <p style="font-size:18px;color:var(--gris)">Entre hojas de cálculo, capturas de transferencias y mensajes a cualquier hora, la administración pasa más tiempo cuadrando cuentas que cuidando el conjunto.</p>
+      <ul class="list">
+        <li>Comprobantes que llegan por todos lados y se revisan uno por uno</li>
+        <li>Pagos que no cuadran con el estado de cuenta del banco</li>
+        <li>Residentes que preguntan cuánto deben y nadie responde a tiempo</li>
+        <li>Mora calculada a ojo y reportes que tardan días en salir</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- MOTOR FINANCIERO -->
+<section class="sec dark motor" id="motor">
+  <div class="gridbg"></div>
+  <div class="wrap" style="position:relative;z-index:2">
+    <div class="sec-h center" style="text-align:center">
+      <span class="kicker">Motor financiero</span>
+      <h2>Del comprobante al banco, <span class="grad">sin hojas de cálculo.</span></h2>
+      <p>Así se mueve un pago por transferencia en CONDOMINAR. Solo un paso queda en manos de la administración, y es un toque.</p>
+    </div>
+
+    <div class="flow rv">
+      <div class="step"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h3l2-3h6l2 3h3v12H4z"/><circle cx="12" cy="13" r="3.5"/></svg></div><small>Residente</small><h4>Envía la foto del comprobante</h4><p>Sin apps, sin formularios, sin contraseñas.</p></div>
+      <div class="step"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M8 12h8"/></svg></div><small>Automático</small><h4>La IA lo lee y lo valida</h4><p>Monto, fecha, banco y referencia en segundos.</p></div>
+      <div class="step"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h7"/><path d="M16 16l2 2 4-4"/></svg></div><small>Automático</small><h4>Se aplica a la deuda más antigua</h4><p>El saldo de cada casa se actualiza solo.</p></div>
+      <div class="step man"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-1.5a1.5 1.5 0 0 1 3 0V11m0-1a1.5 1.5 0 0 1 3 0v4.5a6.5 6.5 0 0 1-6.5 6.5h-.6a6 6 0 0 1-4.5-2L4 15.5a1.6 1.6 0 0 1 2.3-2.2L9 15"/></svg></div><small>Un toque</small><h4>La administración confirma</h4><p>Tú decides. Nada se aprueba sin ti.</p></div>
+      <div class="step"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 14l2 2 4-4"/></svg></div><small>Automático</small><h4>Recibo y conciliación</h4><p>El residente recibe su recibo y el pago cuadra con el banco.</p></div>
+    </div>
+
+    <div class="dash rv" aria-label="Vista del panel de CONDOMINAR">
+      <aside class="side">
+        <img src="logo-condominar-blanco.png" alt="">
+        <a class="on"><i></i>Inicio</a><a><i></i>Residencias</a><a><i></i>Pagos</a><a><i></i>Conciliación</a><a><i></i>Finanzas</a><a><i></i>Reservas</a><a><i></i>Comunicados</a><a><i></i>Reportes</a>
+      </aside>
+      <div class="main">
+        <div class="top"><div><h5>Buenos días, Patricia</h5><span>Conjunto Los Arupos · Noviembre 2026</span></div><span class="pill">+ Registrar pago</span></div>
+        <div class="kpis">
+          <div class="kpi"><span>Recaudado del mes</span><b>US$12.480</b><em>↑ 9% vs octubre</em></div>
+          <div class="kpi"><span>Cartera vencida</span><b>US$2.315</b><em class="r">7 casas con mora</em></div>
+          <div class="kpi"><span>Por verificar</span><b>4</b><em>comprobantes leídos por IA</em></div>
+          <div class="kpi"><span>Conciliado</span><b>95%</b><em>38 de 40 movimientos</em></div>
+        </div>
+        <div class="panes">
+          <div class="pane"><h6>Recaudación 2026 <span>Ene – Nov</span></h6>
+            <div class="chart"><i style="height:48%"></i><i style="height:55%"></i><i style="height:52%"></i><i style="height:60%"></i><i style="height:58%"></i><i style="height:66%"></i><i style="height:70%"></i><i style="height:68%"></i><i style="height:78%"></i><i style="height:84%"></i><i class="h" style="height:94%"></i></div>
+          </div>
+          <div class="pane"><h6>Últimos comprobantes <span>Hoy</span></h6>
+            <div class="tx"><span class="av">C14</span><div>Casa 14 · US$58,00<small>Transferencia · Pichincha</small></div><span class="st ok">Conciliado</span></div>
+            <div class="tx"><span class="av">C07</span><div>Casa 07 · US$116,00<small>Depósito · Produbanco</small></div><span class="st wait">Por verificar</span></div>
+            <div class="tx"><span class="av">C21</span><div>Casa 21 · US$58,00<small>Transferencia · Guayaquil</small></div><span class="st ok">Conciliado</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="dash-note">Pantallas ilustrativas con datos de un conjunto de demostración.</p>
+  </div>
+</section>
+
+<!-- PERFILES -->
+<section class="sec" id="perfiles">
+  <div class="wrap">
+    <div class="sec-h rv">
+      <span class="kicker">Para quién</span>
+      <h2>Una herramienta, <span class="t">cada rol en su lugar.</span></h2>
+      <p>Administración, directiva, contabilidad y residentes trabajan sobre la misma información, cada uno con lo que necesita ver.</p>
+    </div>
+    <div class="profiles rv" id="profiles">
+      <article class="pf on"><img src="foto-administracion.jpg" style="object-position:35% 50%" alt="Administradora reunida con una residente"><span class="n">Administración</span><span class="v">Administración</span>
+        <div class="body"><h3>Administración</h3><p>Cobros recurrentes que se emiten solos, comprobantes ya leídos por IA y el saldo de cada casa siempre actualizado.</p><div class="tags"><span>Cobros automáticos</span><span>Comprobantes con IA</span><span>Recordatorios</span></div></div></article>
+      <article class="pf"><img src="foto-directiva.jpg" style="object-position:55% 50%" alt="Directiva celebrando cuentas claras"><span class="n">Directiva</span><span class="v">Directiva</span>
+        <div class="body"><h3>Directiva</h3><p>Transparencia sin pedir informes: ingresos, egresos y morosidad en tiempo real para rendir cuentas en cada asamblea.</p><div class="tags"><span>Reportes financieros</span><span>Morosidad</span><span>Votaciones con acta</span></div></div></article>
+      <article class="pf"><img src="foto-contabilidad.jpg" style="object-position:30% 50%" alt="Panel financiero en una laptop"><span class="n">Contabilidad</span><span class="v">Contabilidad</span>
+        <div class="body"><h3>Contabilidad y tesorería</h3><p>Conciliación bancaria, egresos a proveedores y cierres de mes que cuadran a la primera.</p><div class="tags"><span>Conciliación</span><span>Egresos</span><span>Cierre de mes</span></div></div></article>
+      <article class="pf res"><img class="rb" src="mascota-condominar.png" alt="Asistente CONDOMINAR"><span class="n">Residentes</span><span class="v">Residentes</span>
+        <div class="body"><h3>Residentes</h3><p>Pagan, envían su comprobante y consultan su estado de cuenta sin descargar apps. El asistente con IA responde al instante.</p><div class="tags"><span>Sin apps</span><span>Estado de cuenta</span><span>Reservas</span></div></div></article>
+    </div>
+  </div>
+</section>
+
+<!-- FUNCIONES -->
+<section class="sec" id="funciones" style="background:var(--hielo)">
+  <div class="wrap">
+    <div class="sec-h rv">
+      <span class="kicker">Funciones</span>
+      <h2>Todo lo que tu conjunto necesita, <span class="t">nada que sobre.</span></h2>
+      <p>La administración trabaja en la web. Los residentes, desde donde ya están.</p>
+    </div>
+    <div class="bento">
+      <div class="card feat b3 rv"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18M12 3l9 5H3z"/></svg></div>
+        <h3>Conciliación bancaria</h3><p>Sube el extracto y CONDOMINAR cruza cada movimiento con los pagos registrados. Los que no cuadran quedan señalados.</p>
+        <div class="mini"><div class="tx"><span class="av">↔</span><div>Transferencia US$58,00 · 18/11<small>Coincide con Casa 14</small></div><span class="st ok">OK</span></div><div class="tx"><span class="av">?</span><div>Depósito US$40,00 · 19/11<small>Sin referencia, revisar</small></div><span class="st wait">Revisar</span></div></div>
+      </div>
+      <div class="card b3 rv"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></div>
+        <h3>Cada casa con su saldo al día</h3><p>Las expensas se generan solas cada mes y cada pago se aplica a la deuda correcta. Abres una residencia y ves cuánto debe, desde cuándo y qué hizo.</p>
+        <ul class="list ok" style="margin-top:20px;gap:10px"><li style="font-size:15px">Estado de cuenta en PDF por residencia</li><li style="font-size:15px">Un propietario con varias casas paga una sola vez</li><li style="font-size:15px">Filtros por deuda, inquilino o contacto</li></ul>
+      </div>
+      <div class="card b2 rv"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/></svg></div><h3>Cobros recurrentes</h3><p>Alícuotas, extraordinarias y multas se emiten solas, sin duplicarse.</p></div>
+      <div class="card b2 rv"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div><h3>Reportes financieros</h3><p>Ingresos, egresos y morosidad listos para la directiva y la asamblea.</p></div>
+      <div class="card b2 rv"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div><h3>Reservas</h3><p>Salón comunal, BBQ o cancha sin choques de horario.</p></div>
+      <div class="card photo-c b4 rv"><div class="txt"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.2 4.6L19 8.3l-3.5 3.4.8 4.9L12 14.3l-4.3 2.3.8-4.9L5 8.3l4.8-.7z"/></svg></div><h3>Asistente con IA para residentes</h3><p>Responde saldos, recibe comprobantes, confirma pagos y envía recibos a cualquier hora. La administración deja de contestar mensaje por mensaje.</p></div><div class="aibox" aria-hidden="true"><div class="halo"></div><img src="mascota-condominar.png" alt=""></div></div>
+      <div class="card b2 rv"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-8-8 18-2-8z"/></svg></div><h3>Comunicados y votaciones</h3><p>Anuncios a todos los residentes, votaciones con acta y reporte de incidencias.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- DECRETO 462 -->
+<section class="sec" id="decreto" style="padding-bottom:40px">
+  <div class="wrap">
+    <div class="decreto rv">
+      <div class="txt">
+        <span class="kicker">Vigente desde el 3 de agosto de 2026</span>
+        <h2>El Decreto 462 ya aplica a tu conjunto. ¿Estás listo?</h2>
+        <p>La nueva normativa de propiedad horizontal pide más orden y transparencia en las cuentas. CONDOMINAR te ayuda a cumplir sin trabajo extra.</p>
+        <ul class="list ok">
+          <li>Intereses de mora calculados con la tasa activa referencial del BCE</li>
+          <li>Estado de pagos mensual listo para publicar a los residentes</li>
+          <li>Seguimiento de convenios de pago por residencia</li>
+        </ul>
+        <a href="#agendar" class="btn btn-d">Revisar mi conjunto en una reunión <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <div class="img"><img src="foto-decreto.jpg" alt="Acuerdo de pago entre administración y residente">
+        <div class="stamp"><b>Estado de pagos · Noviembre</b>Generado automáticamente para 40 residencias</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRECIOS -->
+<section class="sec" id="precios">
+  <div class="wrap">
+    <div class="sec-h center rv" style="text-align:center">
+      <span class="kicker">Planes y precios</span>
+      <h2>Un precio fijo al mes, <span class="t">según el tamaño de tu conjunto.</span></h2>
+      <p>Sin costos ocultos ni cobro por residente. 2 meses sin costo para empezar.</p>
+    </div>
+    <div class="prices">
+      <div class="plan rv"><h3>Hasta 80 unidades</h3><div class="p">US$35<small> /mes</small></div><div class="sub">Plan base, precio fijo para todo el conjunto</div><a href="#agendar" class="btn btn-d">Agendar demostración</a></div>
+      <div class="plan hl rv"><span class="pop">Más elegido</span><h3>De 81 a 180 unidades</h3><div class="p">US$70<small> /mes</small></div><div class="sub">Plan base, precio fijo para todo el conjunto</div><a href="#agendar" class="btn btn-p">Agendar demostración</a></div>
+      <div class="plan rv"><h3>Más de 180 unidades</h3><div class="p alt">Plan a la medida</div><div class="sub">Para conjuntos grandes y administradoras con varios conjuntos</div><a href="#agendar" class="btn btn-d">Hablar con un asesor</a></div>
+    </div>
+    <div class="incl rv">
+      <div><h4>Todos los planes incluyen</h4>
+        <ul class="list ok"><li>Gestión financiera: expensas, pagos y egresos</li><li>Cobros recurrentes automáticos</li><li>Conciliación bancaria</li><li>Propiedades, propietarios e inquilinos</li><li>Reportes financieros</li></ul>
+        <p class="no">No incluido en el plan base: presupuestos con IA y plan de mantenimiento.</p>
+      </div>
+      <div><h4>Módulos que puedes sumar</h4>
+        <div class="mod"><div>Asistente con IA para residentes<span>Pagan, envían comprobantes y consultan su deuda sin apps.</span></div></div>
+        <div class="mod"><div>Votaciones, anuncios e incidencias<span>Votaciones con acta, comunicados y reporte de incidencias.</span></div></div>
+        <div class="mod"><div>Reservas de áreas comunes<span>Calendario, aprobaciones y reglas por área.</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="sec" id="faq" style="background:var(--hielo)">
+  <div class="wrap">
+    <div class="sec-h center rv" style="text-align:center">
+      <span class="kicker">Preguntas frecuentes</span>
+      <h2>Lo que nos preguntan <span class="t">antes de empezar.</span></h2>
+    </div>
+    <div class="faq rv">
+      <details open><summary>¿Los residentes tienen que descargar una aplicación?<i></i></summary><p>No. Los residentes pagan, envían su comprobante y consultan su saldo desde canales que ya usan todos los días. La administración trabaja desde la web.</p></details>
+      <details><summary>¿La inteligencia artificial aprueba los pagos sola?<i></i></summary><p>No. La IA lee el comprobante, valida monto, fecha y banco y propone el registro. Los pagos quedan por verificar hasta que la administración los confirma con un toque.</p></details>
+      <details><summary>¿Cómo funciona la conciliación bancaria?<i></i></summary><p>Subes el extracto de tu banco y CONDOMINAR cruza cada movimiento con los pagos registrados. Lo que no coincide queda señalado para que lo revises.</p></details>
+      <details><summary>¿Puedo pasar mi información desde Excel?<i></i></summary><p>Sí. Te acompañamos a importar residencias, propietarios, inquilinos y saldos pendientes para que empieces con todo al día.</p></details>
+      <details><summary>¿Qué incluye el plan base y qué suman los módulos?<i></i></summary><p>El plan base incluye la gestión financiera completa, cobros recurrentes, conciliación bancaria, propiedades y reportes. El asistente con IA para residentes, las votaciones y las reservas se suman como módulos.</p></details>
+      <details><summary>¿Cómo se protegen los datos del conjunto?<i></i></summary><p>Los datos viajan cifrados y cada conjunto está completamente aislado de los demás.</p></details>
+      <details><summary>¿Puedo probarlo antes de contratar?<i></i></summary><p>Sí. Agenda una demostración con tu propio conjunto y empieza con 2 meses sin costo.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="sec" id="agendar" style="padding-bottom:0">
+  <div class="wrap">
+    <div class="final rv">
+      <div class="gridbg"></div>
+      <div style="position:relative;z-index:2">
+        <span class="kicker">Agenda tu demostración</span>
+        <h2>Deja de perseguir pagos. <span class="grad">Empieza este mes.</span></h2>
+        <p>En 30 minutos te mostramos CONDOMINAR con los datos de tu conjunto y armamos juntos el plan para migrar desde Excel.</p>
+        <div class="ctas"><a href="mailto:hola@condominar.com?subject=Quiero%20agendar%20una%20demostraci%C3%B3n" class="btn btn-p">Agendar demostración <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a href="#precios" class="btn btn-g">Ver planes</a></div>
+      </div>
+      <div class="rbx" aria-hidden="true"><div class="halo"></div><img src="mascota-condominar.png" alt=""></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div><img src="logo-condominar-blanco.png" alt="CONDOMINAR"><p style="max-width:300px">Software de administración de condominios para conjuntos y edificios de Ecuador.</p></div>
+      <div><h5>Producto</h5><ul><li><a href="#motor">Cómo funciona</a></li><li><a href="#funciones">Funciones</a></li><li><a href="#precios">Precios</a></li><li><a href="#decreto">Decreto 462</a></li></ul></div>
+      <div><h5>Recursos</h5><ul><li><a href="#">Blog</a></li><li><a href="#">Guía de propiedad horizontal</a></li><li><a href="#">Quiénes somos</a></li></ul></div>
+      <div><h5>Contacto</h5><ul><li><a href="mailto:hola@condominar.com">hola@condominar.com</a></li><li>+593 98 081 3998</li><li>Quito, Ecuador</li></ul></div>
+    </div>
+    <div class="bottom"><span>© 2026 CONDOMINAR S.A.S. · Quito, Ecuador. Todos los derechos reservados.</span><span><a href="#">Política de privacidad</a> · Datos cifrados y aislados por conjunto.</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var nav=document.getElementById('nav');
+  function onS(){nav.classList.toggle('solid',window.scrollY>40)}
+  window.addEventListener('scroll',onS,{passive:true});onS();
+  var pf=document.querySelectorAll('.pf');
+  pf.forEach(function(p){
+    function act(){pf.forEach(function(x){x.classList.remove('on')});p.classList.add('on')}
+    p.addEventListener('mouseenter',act);p.addEventListener('click',act);
+  });
+  var els=document.querySelectorAll('.rv');
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12});
+    els.forEach(function(e){io.observe(e)});
+  }else{els.forEach(function(e){e.classList.add('in')})}
+})();
+</script>
+</body>
+</html>
